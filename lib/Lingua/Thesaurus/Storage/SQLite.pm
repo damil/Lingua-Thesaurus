@@ -11,7 +11,7 @@ use 5.010;
 use Moose;
 with 'Lingua::Thesaurus::Storage';
 
-use Moose::Meta::Class;
+
 use DBI;
 use Module::Load ();
 use Carp         qw(croak);
@@ -24,15 +24,6 @@ has 'dbh'              => (is => 'ro', isa => 'DBI::db',
                            lazy => 1, builder => '_dbh',
          documentation => "database handle");
 
-has 'params'           => (is => 'ro', isa => 'HashRef',
-                           lazy => 1, builder => '_params',
-                           predicate => 'has_params',
-         documentation => "params stored in the _params table");
-
-has 'term_class'       => (is => 'ro', isa => 'ClassName',
-                           lazy => 1, builder => '_build_term_class',
-                           init_arg => undef,
-         documentation => "dynamic class for terms");
 
 #======================================================================
 # construction
@@ -83,33 +74,6 @@ sub _params {
   return \%params;
 }
 
-sub _build_term_class {
-  my ($self) = @_;
-
-  # compute subclass name from the list of possible relations
-  my $sql           = 'SELECT rel_id FROM rel_type';
-  my $rel_ids       = $self->dbh->selectcol_arrayref($sql);
-  my $subclass_name = join "_", "auto", sort @$rel_ids;
-  my $parent_class  = $self->_parent_term_class;
-  my $pkg_name      = "${parent_class}::${subclass_name}";
-
-  # build a closure for each relation type (NT, BT, etc.)
-  my %methods;
-  foreach my $rel_id (@$rel_ids) {
-    $methods{$rel_id} = sub {my $self = shift;
-                             my @rel  = map {$_->[1]} $self->related($rel_id);
-                             return wantarray ? @rel : $rel[0];};
-  }
-
-  # dynamically create a new subclass
-  my $subclass = Moose::Meta::Class->create(
-    $pkg_name,
-    superclasses => [$parent_class],
-    methods      => \%methods,
-   );
-
-  return $pkg_name;
-}
 
 #======================================================================
 # methods for populating the database
@@ -345,6 +309,15 @@ sub related {
 }
 
 
+sub rel_types {
+  my ($self) = @_;
+  my $sql       = 'SELECT rel_id FROM rel_type';
+  my $rel_types = $self->dbh->selectcol_arrayref($sql);
+  return @$rel_types;
+}
+
+
+
 sub fetch_rel_type {
   my ($self, $rel_id) = @_;
 
@@ -360,27 +333,6 @@ sub fetch_rel_type {
 }
 
 
-
-#======================================================================
-# utilities
-#======================================================================
-
-sub _parent_term_class {
-  my $self = shift;
-  my $parent_term_class =  $self->params->{term_class}
-                       || 'Lingua::Thesaurus::Term';
-  Module::Load::load $parent_term_class;
-  return $parent_term_class;
-}
-
-
-sub _relType_class {
-  my $self = shift;
-  my $relType_class =  $self->params->{relType_class} 
-                    || 'Lingua::Thesaurus::RelType';
-  Module::Load::load $relType_class;
-  return $relType_class;
-}
 
 
 1; # End of Lingua::Thesaurus::Storage::SQLite
