@@ -4,8 +4,7 @@ use Moose;
 use overload '""' => sub {$_[0]->string},
              'eq' => sub {$_[0]->string eq $_[1]};
 
-
-#DO NOT use namespace::clean -except => 'meta' BECAUSE it sweeps 'overload'
+#DO NOT "use namespace::clean -except => 'meta'" BECAUSE it sweeps 'overload'
 
 has 'storage'        => (is => 'ro', does => 'Lingua::Thesaurus::Storage',
                            required => 1,
@@ -52,4 +51,107 @@ sub transitively_related {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Lingua::Thesaurus::Term - parent class for thesaurus terms
+
+=head1 SYNOPSIS
+
+  my $term = $thesaurus->fetch_term($term_string);
+
+  # methods for specific relations
+  my $scope_note = $term->SN;
+  my @synonyms   = $term->UF;
+
+  # exploring several relations at once
+  foreach my $pair ($term->related(qw/NT RT/)) {
+    my ($rel_type, $item) = @$pair;
+    printf "  %s(%s) = %s\n", $rel_type->description, $rel_type->rel_id, $item;
+  }
+
+  # transitive search
+  foreach my $quadruple ($term->transitively_related(qw/NT/)) {
+    my ($rel_type, $related_term, $through_term, $level) = @$quadruple;
+    printf "  %s($level): %s (through %s)\n", 
+       $rel_type->rel_id,
+       $level,
+       $related_term->string,
+       $through_term->string;
+  }
+
+=head1 DESCRIPTION
+
+Objects of this class encapsulate terms in a thesaurus.
+They possess methods for navigating through relations, reaching
+other terms or external data. 
+
+=head1 METHODS
+
+=head2 new
+
+  my $term = Lingua::Thesaurus::Term->new(
+    storage => $storage, # an object playing role Lingua::Thesaurus::Storage
+    id      => $id,      # unique id for this term
+    string  => $string,  # the actual term string
+  );
+
+Creates a new term object; not likely to be called from client code,
+because such objects are created automatically
+from the thesaurus through
+L<Lingua::Thesaurus/"search_terms"> and 
+L<Lingua::Thesaurus/"fetch_term"> methods.
+
+=head2 related
+
+  my @pairs = $term->related(@relation_ids);
+
+Returns a list of items related to the current term, through
+one or several C<@relation_ids>.
+Each returned item is a pair, where the first element is
+an instance of L<Lingua::Thesaurus::RelType>,
+and the second element is either a plain string (when the relation
+type is "external"), or another term (when the relation type is "internal").
+
+=head2 NT, BT, etc.
+
+  my @narrower_terms = $term->NT;
+  my $broader_term   = $term->BT;
+  ...
+
+Specific navigation methods, such as C<NT>, C<BT>, etc., depend on the
+relation types declared in the thesaurus; once those relations are known,
+a subclass of C<Lingua::Thesaurus::Term> is automatically created, with
+the appropriate additional methods.
+
+Internally these methods are implemented of course by calling the
+L</"related"> method described above; but instead or returning
+a list of pairs, they just return related items (since the relation type is
+explicitly requested in the method call, it would be useless to return
+it again as a result). The result is either a list or a single related item,
+depending on the calling context.
+
+=head2 transitively_related
+
+  my @quadruples = $term->transitively_related(@relation_ids);
+
+Returns a list of items directly or indirectly related to the current term,
+through one or several C<@relation_ids>.
+Each returned item is a quadruple, where the first two elements
+are as in the L</"related> method, and the two remaining elements
+are
+
+=over
+
+=item *
+
+the last intermediate term through wich this relation was reached
+
+=item *
+
+the level of transitive steps
+
+=back
 

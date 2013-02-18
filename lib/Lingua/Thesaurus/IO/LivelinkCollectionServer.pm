@@ -5,24 +5,23 @@ with 'Lingua::Thesaurus::IO';
 has '_term_rev_idx'    => (is => 'bare',
          documentation => "internal reverse index while parsing terms");
 
-sub _reltypes {
-  # default reltypes for Livelink Collection Server (formerly BasisPlus)
-  return (
-  #  rel    description         reverse   is_external
+has '_rel_types'       => (is => 'ro',
+         documentation => "default reltypes for Livelink Collection Server",
+                           default => sub { {
+  #  rel    description         inverse   is_external
   #  ===    ===========         =======   ===========
-    [AB  => 'Abbreviation'     => AF    => undef],
-    [AF  => 'Abbreviation For' => AB    => undef],
-    [EQ  => 'See Also'         => UF    => undef],
-    [UF  => 'Used For'         => EQ    => undef],
-    [EQA => 'See AND'          => UFA   => undef],
-    [UFA => 'Used For AND'     => EQA   => undef],
-    [BT  => 'Broad Term'       => NT    => undef],
-    [NT  => 'Narrow Term'      => BT    => undef],
-    [RT  => 'Related Term'     => RT    => undef],
-    [SN  => 'Scope Note'       => undef ,  1    ],
-    [HN  => 'History Note'     => undef ,  1    ],
-   );
-}
+     AB  => ['Abbreviation'     => AF    => undef],
+     AF  => ['Abbreviation For' => AB    => undef],
+     EQ  => ['See Also'         => UF    => undef],
+     UF  => ['Used For'         => EQ    => undef],
+     EQA => ['See AND'          => UFA   => undef],
+     UFA => ['Used For AND'     => EQA   => undef],
+     BT  => ['Broad Term'       => NT    => undef],
+     NT  => ['Narrow Term'      => BT    => undef],
+     RT  => ['Related Term'     => RT    => undef],
+     SN  => ['Scope Note'       => undef ,  1    ],
+     HN  => ['History Note'     => undef ,  1    ],
+ }});
 
 
 sub load {
@@ -34,7 +33,10 @@ sub load {
   $storage->initialize;
 
   # store relation types
-  $storage->store_rel_type(@$_) foreach $self->_reltypes;
+  while (my ($rel_id, $rel_data) = each %{$self->_rel_types}) {
+    my ($descr, $is_external) = @{$rel_data}[0, 2];
+    $storage->store_rel_type($rel_id, $descr, $is_external);
+  }
 
   # load each file
   $storage->do_transaction(sub {$self->_load_file($_)}) foreach @files;
@@ -98,20 +100,22 @@ sub _insert_term {
               //= $storage->store_term($term_string);
 
   # store each collection of relations
+  my $rel_types = $self->_rel_types;
   while (my ($rel_id, $related) = each %$term_hash) {
-    my $rel_type = $storage->fetch_rel_type($rel_id)
+    my $rel_type = $rel_types->{$rel_id}
       or die "unknown relation type: $rel_id\n";
+    my ($inverse_id, $is_external) = @{$rel_type}[1, 2];
 
     # for internal relations, replace strings by ids of related terms
-    if (!$rel_type->is_external) {
+    unless ($is_external) {
       foreach my $rel (@$related) {
-        $rel = $self->{_term_rev_idx}{$rel}
-             //= $storage->store_term($rel);
+        $rel = $self->{_term_rev_idx}{$rel} //= $storage->store_term($rel);
       }
     }
 
     # store it
-    $storage->store_relation($term_id, $rel_id, $related);
+    $storage->store_relation($term_id, $rel_id, $related,
+                             $is_external, $inverse_id);
   }
 }
 
@@ -185,3 +189,8 @@ Relations may be :
     [HN  => 'History Note'     => undef ,  1    ],
    );
 
+=head1 METHODS
+
+=head2 load
+
+Loading a thesaurus file in LivelinkCollectionServer format.

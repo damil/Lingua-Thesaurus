@@ -2,23 +2,23 @@ package Lingua::Thesaurus::IO::Jurivoc;
 use Moose;
 extends 'Lingua::Thesaurus::IO::LivelinkCollectionServer';
 
-sub _reltypes {
-  # default reltypes for Jurivoc (thesaurus for Swiss Tribunal Federal)
-  return (
+has '_rel_types'       => (is => 'ro',
+         documentation => "default reltypes for Jurivoc "
+                        . "(thesaurus for Swiss Tribunal Federal",
+                           default => sub { {
   #  rel    description         reverse   is_external
   #  ===    ===========         =======   ===========
-    [USE => 'Use'              => UF    => undef],
-    [UF  => 'Used For'         => USE   => undef],
-    [USA => 'Use AND'          => UFA   => undef],
-    [UFA => 'Used For AND'     => USA   => undef],
-    [BT  => 'Broad Term'       => NT    => undef],
-    [NT  => 'Narrow Term'      => BT    => undef],
-    [RT  => 'Related Term'     => RT    => undef],
-    [SN  => 'Scope Note'       => undef ,  1    ],
-    [COM => 'Commentaire'      => undef ,  1    ],
-    [SA  => 'See also'         => undef ,  1    ],
-   );
-}
+     USE => ['Use'              => UF    => undef],
+     UF  => ['Used For'         => USE   => undef],
+     USA => ['Use AND'          => UFA   => undef],
+     UFA => ['Used For AND'     => USA   => undef],
+     BT  => ['Broad Term'       => NT    => undef],
+     NT  => ['Narrow Term'      => BT    => undef],
+     RT  => ['Related Term'     => RT    => undef],
+     SN  => ['Scope Note'       => undef ,  1    ],
+     COM => ['Commentaire'      => undef ,  1    ],
+     SA  => ['See also'         => undef ,  1    ],
+ }});
 
 1;
 
@@ -43,8 +43,7 @@ Hence the present class inherits from
 L<Lingua::Thesaurus::IO::LivelinkCollectionServer>.
 
 Relations in Jurivoc are slightly different from default
-relations in LivelinkCollectionServer thesauri.
-Here are they :
+relations in LivelinkCollectionServer thesauri :
 
     rel      description         reverse   is_external
     ===      ===========         =======   ===========

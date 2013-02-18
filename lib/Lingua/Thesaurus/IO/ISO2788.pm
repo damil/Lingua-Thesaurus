@@ -10,7 +10,7 @@ __END__
 
 =head1 NAME
 
-Lingua::Thesaurus::IO::ISO2788 - Loading ISO thesauri
+Lingua::Thesaurus::IO::ISO2788 - IO class for ISO thesauri
 
 =head1 DESCRIPTION
 

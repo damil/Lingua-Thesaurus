@@ -1,11 +1,3 @@
-=head1 TODO
-
-  - use_unaccent without fulltext ==> use collation sequence or redefine LIKE
-  - store thesaurus name for each term
-     => adapt search_terms($pattern, $thes_name);
-
-=cut
-
 package Lingua::Thesaurus::Storage::SQLite;
 use 5.010;
 use Moose;
@@ -99,9 +91,11 @@ sub initialize {
   # params to be injected into the '_params' table
   my $params = $self->has_params ? $self->params : {};
 
-  # two possible representations for the term table : regular or fulltext
+  # default representation for the term table (regular table)
   my $term_table = "TABLE term(docid   INTEGER PRIMARY KEY AUTOINCREMENT,
                                content CHAR    NOT NULL    UNIQUE)";
+
+  # alternative representations for the term table : fulltext
   if ($params->{use_fulltext}) {
     my $tokenizer = "";
     if ($params->{use_unaccent}) {
@@ -121,7 +115,6 @@ sub initialize {
     CREATE TABLE rel_type (
       rel_id      CHAR PRIMARY KEY,
       description CHAR,
-      inverse_id  CHAR,
       is_external BOOL
     );
 
@@ -167,21 +160,16 @@ sub store_term {
 
 
 sub store_rel_type {
-  my ($self, $rel_id, $description, $inverse_id, $is_external) = @_;
+  my ($self, $rel_id, $description, $is_external) = @_;
 
-  my $sql = 'INSERT INTO rel_type VALUES(?, ?, ?, ?)';
+  my $sql = 'INSERT INTO rel_type VALUES(?, ?, ?)';
   my $sth = $self->dbh->prepare($sql);
-  $sth->execute($rel_id, $description, $inverse_id, $is_external);
+  $sth->execute($rel_id, $description, $is_external);
 }
 
 
 sub store_relation {
-  my ($self, $lead_term_id, $rel_id, $related) = @_;
-
-  # retrieve relation type
-  my $rel_type = $self->fetch_rel_type($rel_id)
-    or croak "no such relation type: $rel_id";
-  my $inverse_id = $rel_type->inverse_id;
+  my ($self, $lead_term_id, $rel_id, $related, $is_external, $inverse_id) = @_;
 
   # make sure that $related is a list
   $related = [$related] unless ref $related;
@@ -193,8 +181,8 @@ sub store_relation {
   # insertion loop
   my $count = 1;
   foreach my $rel (@$related) {
-    my ($other_term_id, $ext_info) = $rel_type->is_external ? (undef, $rel)
-                                                            : ($rel, undef);
+    my ($other_term_id, $ext_info) = $is_external ? (undef, $rel)
+                                                  : ($rel,  undef);
 
     # insert first relation
     $sth->execute($lead_term_id, $rel_id, $count++, $other_term_id, $ext_info);
@@ -300,8 +288,8 @@ sub related {
   while (my ($rel_id, $other_term_id, $external_info) = $sth->fetchrow_array) {
     my $rel_type = $rel_types{$rel_id} //= $self->fetch_rel_type($rel_id);
     my $related
-      = $rel_type->{is_external} ? $external_info
-                                 : $self->fetch_term_id($other_term_id);
+      = $rel_type->is_external ? $external_info
+                               : $self->fetch_term_id($other_term_id);
     push @results, [$rel_type, $related];
   }
 
@@ -345,10 +333,10 @@ __END__
 
 Lingua::Thesaurus::Storage::SQLite - Thesaurus storage in an SQLite database
 
-=head1 SYNOPSIS
+=head1 DESCRIPTION
 
-  my $storage = Lingua::Thesaurus::Storage::SQLite->new($dbname);
-  my $storage = Lingua::Thesaurus::Storage::SQLite->new(%args);
+This class implements the L<Lingua::Thesaurus::Storage> role,
+by storing thesaurus data in a L<DBD::SQLite> database.
 
 
 =head1 METHODS
@@ -418,11 +406,23 @@ See L<Lingua::Thesaurus::Storage/"Retrieval methods">
 
 =head2 Populating the database
 
-See L<Lingua::Thesaurus::Storage/"Populating the database">
+See L<Lingua::Thesaurus::Storage/"Populating the database"> for the API.
 
+Below are some particular notes about the SQLite implementation.
 
+=head3 do_transaction
 
+This method just performs C<begin_work> .. C<commit>, because
+inserts into an SQLite database are much faster under a transaction.
+No support for rollbacks is programmed, because in this context
+there is no need for it.
 
+=head3 store_term
 
+If C<use_fulltext> is false, terms are stored in a regular table
+with a UNIQUE constraint, so it is not possible to store the same
+term string twice.
 
+If C<use_fulltext> is true, no constraint is enforced.
 
+=cut
