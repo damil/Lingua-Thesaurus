@@ -17,7 +17,12 @@ my $builder = Module::Build->new(
     },
     requires => {
         perl                => 5.010,
-        Moose               => 0,
+        'Carp'              => 0,
+        'Moose'             => 0,
+        'Module::Load'      => 0,
+        'namespace::clean'  => 0,
+        'DBI'               => 0,
+        'DBD::SQLite'       => 0,
     },
     add_to_cleanup     => [ 'Lingua-Thesaurus-*' ],
     meta_merge => {
