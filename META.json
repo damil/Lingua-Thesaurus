@@ -31,6 +31,7 @@
             "DBI" : "0",
             "Module::Load" : "0",
             "Moose" : "0",
+            "Search::Tokenizer" : "0",
             "namespace::clean" : "0",
             "perl" : "5.01"
          }
@@ -39,7 +40,7 @@
    "provides" : {
       "Lingua::Thesaurus" : {
          "file" : "lib/Lingua/Thesaurus.pm",
-         "version" : "0.01"
+         "version" : "0.02"
       },
       "Lingua::Thesaurus::IO" : {
          "file" : "lib/Lingua/Thesaurus/IO.pm",
@@ -83,5 +84,5 @@
          "url" : "https://github.com/damil/Lingua-Thesaurus"
       }
    },
-   "version" : "0.01"
+   "version" : "0.02"
 }

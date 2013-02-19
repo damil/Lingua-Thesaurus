@@ -23,6 +23,7 @@ my $builder = Module::Build->new(
         'namespace::clean'  => 0,
         'DBI'               => 0,
         'DBD::SQLite'       => 0,
+        'Search::Tokenizer' => 0,
     },
     add_to_cleanup     => [ 'Lingua-Thesaurus-*' ],
     meta_merge => {
