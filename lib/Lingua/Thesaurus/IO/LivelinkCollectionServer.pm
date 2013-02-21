@@ -65,7 +65,7 @@ sub _load_file {
 
   CONTINUATION_LINE:
     while (1) {
-      s/\+\n$/<$fh>/e or last CONTINUATION_LINE;
+      s/\+\r?\n$/<$fh>/e or last CONTINUATION_LINE;
     }
 
     my ($rel_id, $term_string) = ($_ =~ /^([A-Z]+)\d* = (.*)/)
