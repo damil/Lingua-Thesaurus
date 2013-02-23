@@ -6,7 +6,7 @@ use FindBin;
 use Lingua::Thesaurus;
 use List::MoreUtils qw/firstval/;
 
-plan tests => 4;
+plan tests => 5;
 
 my $db_file    = 'TEST.sqlite';
 my $thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
@@ -24,3 +24,14 @@ is(scalar(@UF), 5, "5 UF terms for 'ACCÈS À UN TRIBUNAL'");
 
 my $first_UF = $term->UF;
 is($first_UF, "accès", "scalar UF 'ACCÈS À UN TRIBUNAL' is 'accès'");
+
+
+# Test loading the same file a 2nd time (2nd creation of the Term class)
+undef $thesaurus;
+$thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
+@terms   = $thesaurus->search_terms('accord*');
+$n_terms = @terms;
+ok ($n_terms, "found again $n_terms terms 'accord*'");
+
+
+

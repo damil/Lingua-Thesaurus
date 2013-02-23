@@ -1,5 +1,9 @@
 Revision history for Lingua-Thesaurus
 
+0.04 21.02.2013
+  - LivelinkCollectionServer: use :crlf perlio for better support of DOS format
+  - do not call Moose::Meta::Class->create(..) if class already exists
+
 0.03 21.02.2013
   - LivelinkCollectionServer: accept input file in DOS format, even on Unix
 

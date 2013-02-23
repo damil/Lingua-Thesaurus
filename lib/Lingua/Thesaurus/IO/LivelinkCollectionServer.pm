@@ -49,8 +49,8 @@ sub load {
 sub _load_file {
   my ($self, $file) = @_;
 
-  # lecture du fichier
-  open my $fh, "<", $file or die "open $file: $!";
+  # lecture du fichier (force :crlf IO mode so that Win32 dumpfiles also work)
+  open my $fh, "<:crlf", $file or die "open $file: $!";
 
   my %term;
   my $term_count;
@@ -65,7 +65,7 @@ sub _load_file {
 
   CONTINUATION_LINE:
     while (1) {
-      s/\+\r?\n$/<$fh>/e or last CONTINUATION_LINE;
+      s/\+\n$/<$fh>/e or last CONTINUATION_LINE;
     }
 
     my ($rel_id, $term_string) = ($_ =~ /^([A-Z]+)\d* = (.*)/)

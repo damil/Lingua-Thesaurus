@@ -40,7 +40,7 @@
    "provides" : {
       "Lingua::Thesaurus" : {
          "file" : "lib/Lingua/Thesaurus.pm",
-         "version" : "0.03"
+         "version" : "0.04"
       },
       "Lingua::Thesaurus::IO" : {
          "file" : "lib/Lingua/Thesaurus/IO.pm",
@@ -84,5 +84,5 @@
          "url" : "https://github.com/damil/Lingua-Thesaurus"
       }
    },
-   "version" : "0.03"
+   "version" : "0.04"
 }

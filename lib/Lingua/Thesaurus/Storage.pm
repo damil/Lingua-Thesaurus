@@ -54,21 +54,25 @@ sub _build_term_class {
   my $parent_class  = $self->_parent_term_class;
   my $pkg_name      = "${parent_class}::${subclass_name}";
 
-  # build a closure for each relation type (NT, BT, etc.)
-  my %methods;
-  foreach my $rel_id (@rel_ids) {
-    $methods{$rel_id} = sub {my $self = shift;
-                             my @rel  = map {$_->[1]} $self->related($rel_id);
-                             return wantarray ? @rel : $rel[0];};
-  }
+  # build subclass (only if it does not already exist)
+  no strict 'refs';
+  unless (%{$pkg_name."::"}) {
+    # build a closure for each relation type (NT, BT, etc.)
+    my %methods;
+    foreach my $rel_id (@rel_ids) {
+      $methods{$rel_id} = sub {my $self = shift;
+                               my @rel  = map {$_->[1]} $self->related($rel_id);
+                               return wantarray ? @rel : $rel[0];};
+    }
 
-  # dynamically create a new subclass
-  my $meta_subclass = Moose::Meta::Class->create(
-    $pkg_name,
-    superclasses => [$parent_class],
-    methods      => \%methods,
-   );
-  $meta_subclass->make_immutable;
+    # dynamically create a new subclass
+    my $meta_subclass = Moose::Meta::Class->create(
+      $pkg_name,
+      superclasses => [$parent_class],
+      methods      => \%methods,
+     );
+    $meta_subclass->make_immutable;
+  }
 
   return $pkg_name;
 }
