@@ -20,6 +20,7 @@ t/05-load-jurivoc-fulltext-unaccent.t
 t/06-use-jurivoc-fulltext-unaccent.t
 t/99-cleanup.t
 t/data/excerpt_jurivoc_fre.dmp
+t/data/palaisvoc.dmp
 t/pod.t
 META.yml
 META.json

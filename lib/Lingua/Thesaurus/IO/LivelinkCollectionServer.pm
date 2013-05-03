@@ -25,11 +25,21 @@ has '_rel_types'       => (is => 'ro',
 
 
 sub load {
-  my ($self, @files) = @_;
+  my $self = shift;
 
-  my $storage = $self->storage;
+  # files are given either as ->load($f1, $f2, ..), or
+  # as ->load({$ori1 => $f1, $ori2 => $f2, ...});
+  my @files;               # list of pairs [$filename, $origin]
+  if (@_ == 1 && ref $_[0] eq 'HASH') {
+    my $files_hash = shift;
+    @files = map {[$files_hash->{$_}, $_]} keys %$files_hash;
+  }
+  else {
+    @files = map {[$_, undef]} @_;
+  }
 
   # initialize storage structure
+  my $storage = $self->storage;
   $storage->initialize;
 
   # store relation types
@@ -39,7 +49,7 @@ sub load {
   }
 
   # load each file
-  $storage->do_transaction(sub {$self->_load_file($_)}) foreach @files;
+  $storage->do_transaction(sub {$self->_load_file(@$_)}) foreach @files;
 
   # cleanup internal reverse index
   $self->{_term_rev_idx} = {};
@@ -47,7 +57,7 @@ sub load {
 }
 
 sub _load_file {
-  my ($self, $file) = @_;
+  my ($self, $file, $origin) = @_;
 
   # lecture du fichier (force :crlf IO mode so that Win32 dumpfiles also work)
   open my $fh, "<:crlf", $file or die "open $file: $!";
@@ -78,7 +88,7 @@ sub _load_file {
       $self->_insert_term(\%term) if keys %term;
 
       # build a new term
-      %term = (LT => $term_string);
+      %term = (LT => $term_string, origin => $origin);
     }
     else {
       # store relation info into current term
@@ -94,10 +104,12 @@ sub _insert_term {
   my ($self, $term_hash) = @_;
   my $storage     = $self->storage;
 
+  my $origin = delete $term_hash->{origin};
+
   # store the lead term
   my $term_string = delete $term_hash->{LT};
   my $term_id = $self->{_term_rev_idx}{$term_string}
-              //= $storage->store_term($term_string);
+              //= $storage->store_term($term_string, $origin);
 
   # store each collection of relations
   my $rel_types = $self->_rel_types;
@@ -109,7 +121,8 @@ sub _insert_term {
     # for internal relations, replace strings by ids of related terms
     unless ($is_external) {
       foreach my $rel (@$related) {
-        $rel = $self->{_term_rev_idx}{$rel} //= $storage->store_term($rel);
+        $rel = $self->{_term_rev_idx}{$rel}
+             //= $storage->store_term($rel, $origin);
       }
     }
 

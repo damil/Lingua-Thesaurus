@@ -1,5 +1,9 @@
 Revision history for Lingua-Thesaurus
 
+0.05 03.05.2013
+  - new field "origin" to tag which thesaurus a term comes from
+  - accept single wildcard '?' in searches
+
 0.04 21.02.2013
   - LivelinkCollectionServer: use :crlf perlio for better support of DOS format
   - do not call Moose::Meta::Class->create(..) if class already exists

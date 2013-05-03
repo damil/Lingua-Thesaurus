@@ -5,7 +5,7 @@ use Module::Build;
 
 my $builder = Module::Build->new(
     module_name         => 'Lingua::Thesaurus',
-    license             => 'Artistic_2_0',
+    license             => 'perl',
     dist_author         => q{Laurent Dami <dami@cpan.org>},
     dist_version_from   => 'lib/Lingua/Thesaurus.pm',
     release_status      => 'stable',

@@ -5,7 +5,7 @@ use Module::Load ();
 use Carp;
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 has 'storage'          => (is => 'ro', does => 'Lingua::Thesaurus::Storage',
                            handles => [qw/search_terms fetch_term
@@ -62,6 +62,7 @@ Lingua::Thesaurus - Thesaurus management
 
   my $thesaurus = Lingua::Thesaurus->new(SQLite => $dbname);
   $thesaurus->load($io_class => @files);
+  $thesaurus->load($io_class => {$origin1 => $file1, ...});
   $thesaurus->load($io_class => {files => \@files,
                                  params  => {termClass => ..,
                                              relTypeClass => ..}});
@@ -149,6 +150,7 @@ as
 =head2 load
 
   $thesaurus->load($io_class => @files);
+  $thesaurus->load($io_class => {$origin1 => $file1, ...});
   $thesaurus->load($io_class => {files => \@files,
                                  params  => {termClass    => ..,
                                              relTypeClass => ..}});
@@ -158,8 +160,11 @@ job of parsing these files is delegated to some C<IO> subclass, given
 as first argument. The C<$io_class> will be automatically prefixed by
 C<Lingua::Thesaurus::IO::>, unless the classname contains an initial
 C<'+'>. The remaining arguments are transmitted to the IO class; the
-simplest form is just a list of dumpfiles. See IO subclasses
-in the L<Lingua::Thesaurus::IO> namespace for more details.
+simplest form is just a list of dumpfiles, or a hashref of pairs C<<
+{$origin1 => $dumpfile1, ...} >>. Each C<$origin> is a string for
+tagging terms coming from that dumpfile; while interrogating the
+thesaurus, origins can be retrieved from C<< $term->origin >>.  See IO
+subclasses in the L<Lingua::Thesaurus::IO> namespace for more details.
 
 =head3 search_terms
 

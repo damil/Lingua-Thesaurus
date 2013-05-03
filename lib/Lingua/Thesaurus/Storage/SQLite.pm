@@ -93,7 +93,8 @@ sub initialize {
 
   # default representation for the term table (regular table)
   my $term_table = "TABLE term(docid   INTEGER PRIMARY KEY AUTOINCREMENT,
-                               content CHAR    NOT NULL    UNIQUE)";
+                               content CHAR    NOT NULL    UNIQUE,
+                               origin  CHAR)";
 
   # alternative representations for the term table : fulltext
   if ($params->{use_fulltext}) {
@@ -105,7 +106,7 @@ sub initialize {
       # phase of the user process (bug in DBD::SQLite tokenizers). So
       # 'use_unaccent' is not recommended in production.
     }
-    $term_table = "VIRTUAL TABLE term USING fts4(content $tokenizer)";
+    $term_table = "VIRTUAL TABLE term USING fts4(content, origin $tokenizer)";
   }
 
   $dbh->do(<<"");
@@ -151,10 +152,11 @@ sub initialize {
 
 
 sub store_term {
-  my ($self, $term_string) = @_;
+  my ($self, $term_string, $origin) = @_;
 
-  my $sth = $self->dbh->prepare('INSERT INTO term(content) VALUES(?)');
-  $sth->execute($term_string);
+  my $sql = 'INSERT INTO term(content, origin) VALUES(?, ?)';
+  my $sth = $self->dbh->prepare($sql);
+  $sth->execute($term_string, $origin);
   return $self->dbh->last_insert_id('', '', '', '');
 }
 
@@ -207,7 +209,7 @@ sub search_terms {
   my ($self, $pattern) = @_;
 
   # retrieve terms data from database
-  my ($sql, @bind) = ('SELECT docid, content FROM term');
+  my ($sql, @bind) = ('SELECT docid, content, origin FROM term');
   if ($pattern) {
     if ($self->params->{use_fulltext}) {
       $sql .= " WHERE content MATCH ?";
@@ -215,6 +217,7 @@ sub search_terms {
     else {
       $sql .= " WHERE content LIKE ?";
       $pattern =~ tr/*/%/;
+      $pattern =~ tr/?/_/;
     };
   }
   my $sth = $self->dbh->prepare($sql);
@@ -225,23 +228,25 @@ sub search_terms {
   my $term_class = $self->term_class;
   return map {$term_class->new(storage => $self,
                                id      => $_->[0],
-                               string  => $_->[1])} @$rows;
+                               string  => $_->[1],
+                               origin  => $_->[2])} @$rows;
 }
 
 sub fetch_term {
   my ($self, $term_string) = @_;
 
   # retrieve term data from database
-  my $sql = 'SELECT docid, content FROM term WHERE content = ?';
+  my $sql = 'SELECT docid, content, origin FROM term WHERE content = ?';
   my $sth = $self->dbh->prepare($sql);
   $sth->execute($term_string);
-  (my $id, $term_string) = $sth->fetchrow_array
+  (my $id, $term_string, my $origin) = $sth->fetchrow_array
     or return;
 
   # build term object
   return $self->term_class->new(storage => $self,
                                 id      => $id,
-                                string  => $term_string);
+                                string  => $term_string,
+                                origin  => $origin);
 }
 
 

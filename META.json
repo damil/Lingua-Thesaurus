@@ -4,9 +4,9 @@
       "Laurent Dami <dami@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "Module::Build version 0.4003, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Module::Build version 0.4004, CPAN::Meta::Converter version 2.120921",
    "license" : [
-      "artistic_2"
+      "perl_5"
    ],
    "meta-spec" : {
       "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
@@ -40,7 +40,7 @@
    "provides" : {
       "Lingua::Thesaurus" : {
          "file" : "lib/Lingua/Thesaurus.pm",
-         "version" : "0.04"
+         "version" : "0.05"
       },
       "Lingua::Thesaurus::IO" : {
          "file" : "lib/Lingua/Thesaurus/IO.pm",
@@ -78,11 +78,11 @@
    "release_status" : "stable",
    "resources" : {
       "license" : [
-         "http://www.perlfoundation.org/artistic_license_2_0"
+         "http://dev.perl.org/licenses/"
       ],
       "repository" : {
          "url" : "https://github.com/damil/Lingua-Thesaurus"
       }
    },
-   "version" : "0.04"
+   "version" : "0.05"
 }

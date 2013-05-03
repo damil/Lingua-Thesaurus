@@ -16,6 +16,8 @@ has 'id'               => (is => 'ro', isa => 'Str', required => 1,
 has 'string'           => (is => 'ro', isa => 'Str', required => 1,
          documentation => "the term itself");
 
+has 'origin'           => (is => 'ro', isa => 'Maybe[Str]',
+         documentation => "where this term was found");
 
 __PACKAGE__->meta->make_immutable;
 
@@ -88,7 +90,7 @@ Objects of this class encapsulate terms in a thesaurus.
 They possess methods for navigating through relations, reaching
 other terms or external data. 
 
-=head1 METHODS
+=head1 CONSTRUCTOR
 
 =head2 new
 
@@ -96,6 +98,7 @@ other terms or external data.
     storage => $storage, # an object playing role Lingua::Thesaurus::Storage
     id      => $id,      # unique id for this term
     string  => $string,  # the actual term string
+    origin  => $origin,  # an identifier for the file where this term was found
   );
 
 Creates a new term object; not likely to be called from client code,
@@ -103,6 +106,29 @@ because such objects are created automatically
 from the thesaurus through
 L<Lingua::Thesaurus/"search_terms"> and 
 L<Lingua::Thesaurus/"fetch_term"> methods.
+
+
+=head1 ATTRIBUTES
+
+=head2 storage
+
+Reference to the storage object
+from which this term was issued.
+
+=head2 id
+
+unique storage id for the term
+
+=head2 string
+
+the term itself
+
+=head2 origin
+
+tagname of the dumpfile where this term was found
+
+
+=head1 METHODS
 
 =head2 related
 

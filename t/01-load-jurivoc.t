@@ -7,12 +7,13 @@ use Lingua::Thesaurus;
 use List::MoreUtils qw/firstval/;
 
 my $db_file    = 'TEST.sqlite';
-my @data_files = ("$FindBin::Bin/data/excerpt_jurivoc_fre.dmp");
+my %data_files = (TF => "$FindBin::Bin/data/excerpt_jurivoc_fre.dmp",
+                  GE => "$FindBin::Bin/data/palaisvoc.dmp");
 
 unlink $db_file;
 my $thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
 
-$thesaurus->load(Jurivoc => @data_files);
+$thesaurus->load(Jurivoc => \%data_files);
 
 plan tests => 1;
 ok (1, "$db_file loaded");
