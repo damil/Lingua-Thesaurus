@@ -975,4 +975,30 @@ UF = accords bilatéraux i
 UF = rs 0.740.72
 SN = accord sur le transport de marchandises et de voyageurs par rail et route;+
  réservé à l'indexation de la doctrine
+
+### [...]
+
+LT = RETARD
+LT = DÉLAI
+UF = délai supplémentaire
+NT = BREF DÉLAI
+NT = CALCUL DU DÉLAI
+NT = DÉLAI ABSOLU
+NT = DÉLAI D'EXAMEN ET DE RÉFLEXION
+NT = DÉLAI D'INTERDICTION
+NT = DÉLAI DE GARDE
+NT = DÉLAI FIXÉ PAR LE JUGE
+NT = DÉLAI LÉGAL
+NT = DÉLAI RAISONNABLE
+NT = DÉLAI RELATIF
+NT = DÉLAI-CADRE
+NT = INTERRUPTION DU DÉLAI
+NT = OBSERVATION DU DÉLAI
+NT = PROLONGATION DU DÉLAI
+NT = RESTITUTION DU DÉLAI
+NT = RETARD
+NT = SUSPENSION DU DÉLAI
+SA01 = DÉLAI DE RÉSILIATION
+SA02 = DÉLAI DE RECOURS
+SA03 = DÉLAI POUR INTENTER ACTION
 END_REL

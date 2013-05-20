@@ -1,5 +1,9 @@
 Revision history for Lingua-Thesaurus
 
+0.06 20.05.2013
+  - allow same term to be loaded from several origins
+  - fix some parsing bugs
+
 0.05 03.05.2013
   - new field "origin" to tag which thesaurus a term comes from
   - accept single wildcard '?' in searches

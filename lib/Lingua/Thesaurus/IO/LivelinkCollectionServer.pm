@@ -68,20 +68,28 @@ sub _load_file {
 
  LINE:
   while (<$fh>) {
+
+    # skip initial lines until thesaurus name declaration
     $thesaurus_name //= do {s/^BEGIN_REL THES_NAME=(.*)//; $1}
       or next LINE;
-    next LINE if /^\s*$/;
+
+    # stop at ending line
     last LINE if /^END_REL/;
 
+    # unfold continuation lines
   CONTINUATION_LINE:
     while (1) {
       s/\+\n$/<$fh>/e or last CONTINUATION_LINE;
     }
 
-    my ($rel_id, $term_string) = ($_ =~ /^([A-Z]+)\d* = (.*)/)
-      or die "incorrect thesaurus syntax at line $.: $_\n";
+    # suppress comments
+    s/###.*//;
 
-    $term_string =~ s/\s*###.*//;
+    # skip empty lines
+    next LINE if /^\s*$/;
+
+    my ($rel_id, $term_string) = ($_ =~ /^([A-Z]+)\d*\s*=\s*(.+?)\s*$/)
+      or die "incorrect thesaurus syntax at $file line $.: $_\n";
 
     if ($rel_id eq 'LT') {
       # insert last term
@@ -108,7 +116,7 @@ sub _insert_term {
 
   # store the lead term
   my $term_string = delete $term_hash->{LT};
-  my $term_id = $self->{_term_rev_idx}{$term_string}
+  my $term_id = $self->{_term_rev_idx}{$origin || ''}{$term_string}
               //= $storage->store_term($term_string, $origin);
 
   # store each collection of relations
@@ -121,7 +129,7 @@ sub _insert_term {
     # for internal relations, replace strings by ids of related terms
     unless ($is_external) {
       foreach my $rel (@$related) {
-        $rel = $self->{_term_rev_idx}{$rel}
+        $rel = $self->{_term_rev_idx}{$origin || ''}{$rel}
              //= $storage->store_term($rel, $origin);
       }
     }

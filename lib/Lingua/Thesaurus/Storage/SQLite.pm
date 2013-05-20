@@ -93,8 +93,9 @@ sub initialize {
 
   # default representation for the term table (regular table)
   my $term_table = "TABLE term(docid   INTEGER PRIMARY KEY AUTOINCREMENT,
-                               content CHAR    NOT NULL    UNIQUE,
-                               origin  CHAR)";
+                               content CHAR    NOT NULL,
+                               origin  CHAR,
+                               UNIQUE (content, origin))";
 
   # alternative representations for the term table : fulltext
   if ($params->{use_fulltext}) {
@@ -219,9 +220,10 @@ sub search_terms {
       $pattern =~ tr/*/%/;
       $pattern =~ tr/?/_/;
     };
+    @bind = ($pattern);
   }
   my $sth = $self->dbh->prepare($sql);
-  $sth->execute($pattern);
+  $sth->execute(@bind);
   my $rows = $sth->fetchall_arrayref;
 
   # build term objects
