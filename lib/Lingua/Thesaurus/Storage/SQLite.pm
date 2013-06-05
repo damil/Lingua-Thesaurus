@@ -207,7 +207,7 @@ sub finalize {
 
 
 sub search_terms {
-  my ($self, $pattern) = @_;
+  my ($self, $pattern, $origin) = @_;
 
   # retrieve terms data from database
   my ($sql, @bind) = ('SELECT docid, content, origin FROM term');
@@ -222,6 +222,10 @@ sub search_terms {
     };
     @bind = ($pattern);
   }
+  if (defined $origin) {
+    $sql .= ($pattern ? ' AND ' : ' WHERE ') . 'origin = ?';
+    push @bind, $origin;
+  }
   my $sth = $self->dbh->prepare($sql);
   $sth->execute(@bind);
   my $rows = $sth->fetchall_arrayref;
@@ -235,13 +239,18 @@ sub search_terms {
 }
 
 sub fetch_term {
-  my ($self, $term_string) = @_;
+  my ($self, $term_string, $origin) = @_;
 
   # retrieve term data from database
-  my $sql = 'SELECT docid, content, origin FROM term WHERE content = ?';
+  my $sql  = 'SELECT docid, content, origin FROM term WHERE content = ?';
+  my @bind = ($term_string);
+  if (defined $origin) {
+    $sql .= ' AND origin = ?';
+    push @bind, $origin;
+  }
   my $sth = $self->dbh->prepare($sql);
-  $sth->execute($term_string);
-  (my $id, $term_string, my $origin) = $sth->fetchrow_array
+  $sth->execute(@bind);
+  (my $id, $term_string, $origin) = $sth->fetchrow_array
     or return;
 
   # build term object
@@ -253,12 +262,17 @@ sub fetch_term {
 
 
 sub fetch_term_id {
-  my ($self, $id) = @_;
+  my ($self, $id, $origin) = @_;
 
   # retrieve term data from database
-  my $sql = 'SELECT content FROM term WHERE docid = ?';
+  my $sql  = 'SELECT content FROM term WHERE docid = ?';
+  my @bind = ($id);
+  if (defined $origin) {
+    $sql .= ' AND origin = ?';
+    push @bind, $origin;
+  }
   my $sth = $self->dbh->prepare($sql);
-  $sth->execute($id);
+  $sth->execute(@bind);
   my ($term_string) = $sth->fetchrow_array
     or return;
 

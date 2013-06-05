@@ -168,7 +168,7 @@ subclasses in the L<Lingua::Thesaurus::IO> namespace for more details.
 
 =head3 search_terms
 
-  my @terms = $thesaurus->search_terms($pattern);
+  my @terms = $thesaurus->search_terms($pattern, $origin);
 
 Searches the term database according to C<$pattern>, where
 the pattern may contain C<'*'> to mean word completion.
@@ -187,15 +187,19 @@ L<Lingua::Thesaurus::Storage::SQLite/use_fulltext>.
 If C<$pattern> is empty, the method returns the list
 of all terms in the thesaurus.
 
+The second argument C<$origin> is optional; it may be used
+to restrict the search on terms loaded from one specific origin.
+
 Results are instances of L<Lingua::Thesaurus::Term>.
 
 =head3 fetch_term
 
-  my $term = $thesaurus->fetch_term($term_string);
+  my $term = $thesaurus->fetch_term($term_string, $origin);
 
 Retrieves a specific term and
 returns an instance of L<Lingua::Thesaurus::Term>
-(or C<undef> if the term is unknown).
+(or C<undef> if the term is unknown). The second argument C<$origin>
+is optional.
 
 
 =head3 rel_types

@@ -6,7 +6,7 @@ use FindBin;
 use Lingua::Thesaurus;
 use List::MoreUtils qw/firstval/;
 
-plan tests => 8;
+plan tests => 11;
 
 my $db_file    = 'TEST.sqlite';
 my $thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
@@ -35,6 +35,19 @@ is ($term->origin, 'GE', "action tardive origin GE");
 @terms = $thesaurus->search_terms('RETARD');
 my @origins = sort map {$_->origin} @terms;
 is_deeply(\@origins, [qw/GE TF/], "'RETARD' in both thesauri");
+
+
+# API with specific origin
+@terms = $thesaurus->search_terms('RETARD', 'TF');
+@origins = sort map {$_->origin} @terms;
+is_deeply(\@origins, [qw/TF/], "'RETARD' from one specific origin");
+
+$term = $thesaurus->fetch_term('RETARD', 'TF');
+is ($term->origin, 'TF', "RETARD, origin TF");
+
+$term = $thesaurus->fetch_term('RETARD', 'GE');
+is ($term->origin, 'GE', "RETARD, origin GE");
+
 
 # Test loading the same file a 2nd time (2nd creation of the Term class)
 undef $thesaurus;
