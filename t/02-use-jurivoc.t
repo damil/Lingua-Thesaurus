@@ -6,7 +6,7 @@ use FindBin;
 use Lingua::Thesaurus;
 use List::MoreUtils qw/firstval/;
 
-plan tests => 11;
+plan tests => 13;
 
 my $db_file    = 'TEST.sqlite';
 my $thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
@@ -47,6 +47,15 @@ is ($term->origin, 'TF', "RETARD, origin TF");
 
 $term = $thesaurus->fetch_term('RETARD', 'GE');
 is ($term->origin, 'GE', "RETARD, origin GE");
+
+
+# special relations
+$term = $thesaurus->fetch_term("ACCORD(EXAMEN DES DEMANDES D'ASILE)");
+my @SA = $term->SA;
+is_deeply(\@SA, ["ACCORD BILATÉRAL EN MATIÈRE DE POLICE",
+                 "ACCORD BILATÉRAL EN MATIÈRE D'ENTRAIDE JUDICIAIRE"], "SA");
+$SN = $term->SN;
+like($SN, qr/examen d'une demande d'asile/, 'SN');
 
 
 # Test loading the same file a 2nd time (2nd creation of the Term class)
