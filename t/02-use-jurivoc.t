@@ -6,7 +6,7 @@ use FindBin;
 use Lingua::Thesaurus;
 use List::MoreUtils qw/firstval/;
 
-plan tests => 13;
+plan tests => 14;
 
 my $db_file    = 'TEST.sqlite';
 my $thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
@@ -27,6 +27,7 @@ is(scalar(@UF), 5, "5 UF terms for 'ACCÈS À UN TRIBUNAL'");
 my $first_UF = $term->UF;
 is($first_UF, "accès", "scalar UF 'ACCÈS À UN TRIBUNAL' is 'accès'");
 
+ok(defined $first_UF->origin, "origin is defined");
 
 $term = $thesaurus->fetch_term('action tardive');
 is ($term->origin, 'GE', "action tardive origin GE");

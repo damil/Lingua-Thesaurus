@@ -1,5 +1,9 @@
 Revision history for Lingua-Thesaurus
 
+0.08 06.06.2013
+  - better doc for internal/external relations
+  - bug fix: fetch_term_id() and related() did not return origins
+
 0.07 05.06.2013
   - search_terms() and fetch_term() can filter on $origin
   - more tests for SA and SN relations

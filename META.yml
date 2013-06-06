@@ -16,7 +16,7 @@ name: Lingua-Thesaurus
 provides:
   Lingua::Thesaurus:
     file: lib/Lingua/Thesaurus.pm
-    version: 0.06
+    version: 0.07
   Lingua::Thesaurus::IO:
     file: lib/Lingua/Thesaurus/IO.pm
     version: 0
@@ -53,4 +53,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: https://github.com/damil/Lingua-Thesaurus
-version: 0.06
+version: 0.07

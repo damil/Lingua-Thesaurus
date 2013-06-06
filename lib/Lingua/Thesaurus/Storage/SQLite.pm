@@ -265,7 +265,7 @@ sub fetch_term_id {
   my ($self, $id, $origin) = @_;
 
   # retrieve term data from database
-  my $sql  = 'SELECT content FROM term WHERE docid = ?';
+  my $sql  = 'SELECT content, origin FROM term WHERE docid = ?';
   my @bind = ($id);
   if (defined $origin) {
     $sql .= ' AND origin = ?';
@@ -273,13 +273,14 @@ sub fetch_term_id {
   }
   my $sth = $self->dbh->prepare($sql);
   $sth->execute(@bind);
-  my ($term_string) = $sth->fetchrow_array
+  (my $term_string, $origin) = $sth->fetchrow_array
     or return;
 
   # build term object
   return $self->term_class->new(storage => $self,
                                 id      => $id,
-                                string  => $term_string);
+                                string  => $term_string,
+                                origin  => $origin);
 }
 
 

@@ -5,7 +5,7 @@ use Module::Load ();
 use Carp;
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 has 'storage'          => (is => 'ro', does => 'Lingua::Thesaurus::Storage',
                            handles => [qw/search_terms fetch_term
@@ -74,8 +74,8 @@ Lingua::Thesaurus - Thesaurus management
   my @terms = $thesaurus->search_terms('*foo*');
   my $term  = $thesaurus->fetch_term('foobar');
 
-  my $scope_note = $term->SN;
-  my @synonyms   = $term->UF;
+  my $scope_note = $term->SN; # returns a string
+  my @synonyms   = $term->UF; # returns a list of other terms
 
   foreach my $pair ($term->related(qw/NT RT/)) {
     my ($rel_type, $item) = @$pair;
@@ -95,8 +95,11 @@ Lingua::Thesaurus - Thesaurus management
 =head1 DESCRIPTION
 
 This distribution manages I<thesauri>. A thesaurus is a list of
-terms, with some relations between them (like for example "broader term" /
-"narrower term").
+terms, with some relations (like for example "broader term" /
+"narrower term"). Relations are either "internal" (between two terms),
+or "external" (between a term and some external data, like for example
+a "Scope Note"). Relations may have a reciprocal;
+see L<Lingua::Thesaurus::RelType>.
 
 Thesauri are loaded from one or several I<IO formats>; usually this will be
 the ISO 2788 format, or some derivative from it. See classes under the
@@ -263,7 +266,8 @@ Thesaurus storage in an SQLite database
 =item *
 
 L<Lingua::Thesaurus::Term>:
-parent class for thesaurus terms
+parent class for thesaurus terms; in particular, this class
+implements methods for navigating through relations.
 
 =back
 
