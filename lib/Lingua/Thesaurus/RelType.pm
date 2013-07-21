@@ -36,7 +36,7 @@ String, unique identifier for this relation type (e.g. 'NT', 'BT', 'RT', etc.)
 
 =item description
 
-Descriptionstring for this relation type
+Description string for this relation type
 
 =item inverse_id
 
