@@ -5,7 +5,7 @@ use Module::Load ();
 use Carp;
 use namespace::clean -except => 'meta';
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 has 'storage'          => (is => 'ro', does => 'Lingua::Thesaurus::Storage',
                            handles => [qw/search_terms fetch_term

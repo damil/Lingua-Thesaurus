@@ -12,7 +12,7 @@ use List::MoreUtils qw/firstval/;
 use Search::Tokenizer;
 
 
-plan tests => 2;
+plan tests => 4;
 
 my $db_file    = 'TEST.sqlite';
 my $thesaurus = Lingua::Thesaurus->new(SQLite => $db_file);
@@ -26,6 +26,17 @@ ok ($n_terms, "found $n_terms terms 'activite'");
 @terms   = $thesaurus->search_terms('econôm*');
 $n_terms = @terms;
 ok ($n_terms, "found $n_terms terms 'econôm'");
+
+# parenthesis handling
+@terms   = $thesaurus->search_terms('ACCORD(EXAMEN');
+$n_terms = @terms;
+ok ($n_terms, "found $n_terms terms 'ACCORD(EXAMEN'");
+
+@terms   = $thesaurus->search_terms("ACCORD(EXAMEN DES DEMANDES D'ASILE)");
+$n_terms = @terms;
+ok ($n_terms, "found $n_terms terms 'ACCORD(EXAMEN DES DEMANDES D'ASILE)'");
+
+
 
 
 # NOTE : at present, the END section of DBI causes a core dump when using

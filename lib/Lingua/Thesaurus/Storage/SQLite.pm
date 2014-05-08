@@ -214,6 +214,14 @@ sub search_terms {
   if ($pattern) {
     if ($self->params->{use_fulltext}) {
       $sql .= " WHERE content MATCH ?";
+
+      # SQLITE's fulltext engine doesn't like unbalanced parenthesis
+      # in a MATCH term. Besides, it replaces parenthesis by white
+      # space, which results in OR-ing the terms. So what we do is
+      # explicitly replace parenthesis by white space, and wrap the
+      # whole thing in a phrase query, to get more precise answers.
+      my $n_paren = $pattern =~ tr/()/ /;
+      $pattern = qq{"$pattern"} if $n_paren and $pattern !~ /"/;
     }
     else {
       $sql .= " WHERE content LIKE ?";
