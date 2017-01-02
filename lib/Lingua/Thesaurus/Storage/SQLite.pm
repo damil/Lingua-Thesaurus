@@ -99,6 +99,8 @@ sub initialize {
 
   # alternative representations for the term table : fulltext
   if ($params->{use_fulltext}) {
+    DBD::SQLite->VERSION("1.54"); # because earlier versions have a bug
+                                  # in tokenizer suport
     my $tokenizer = "";
     if ($params->{use_unaccent}) {
       require Search::Tokenizer;

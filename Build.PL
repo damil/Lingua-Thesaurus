@@ -22,7 +22,7 @@ my $builder = Module::Build->new(
         'Module::Load'      => 0,
         'namespace::clean'  => 0,
         'DBI'               => 0,
-        'DBD::SQLite'       => 1.39,
+        'DBD::SQLite'       => 1.54,
         'Search::Tokenizer' => 0,
     },
     add_to_cleanup     => [ 'Lingua-Thesaurus-*' ],

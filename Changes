@@ -1,5 +1,7 @@
 Revision history for Lingua-Thesaurus
 
+0.10 02.01.2017
+  - force dependency on v1.54 of DBD::SQLite because of RT#118968
 
 0.09 08.05.2014
   - fixed problem with unbalanced parens in a MATCH query
