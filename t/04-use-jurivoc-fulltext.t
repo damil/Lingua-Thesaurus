@@ -2,14 +2,8 @@
 use strict;
 use warnings FATAL => 'all';
 
-use lib "d:/devarea/ali.as/DBD-SQLite/blib/lib";
-use lib "d:/devarea/ali.as/DBD-SQLite/blib/arch";
-
 use Test::More;
-use FindBin;
 use Lingua::Thesaurus;
-use List::MoreUtils qw/firstval/;
-use Search::Tokenizer;
 
 plan tests => 2;
 

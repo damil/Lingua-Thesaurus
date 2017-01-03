@@ -4,7 +4,6 @@ use warnings FATAL => 'all';
 use Test::More;
 use FindBin;
 use Lingua::Thesaurus;
-use List::MoreUtils qw/firstval/;
 
 my $db_file    = 'TEST.sqlite';
 my @data_files = ("$FindBin::Bin/data/excerpt_jurivoc_fre.dmp");

@@ -215,6 +215,11 @@ sub search_terms {
   my ($sql, @bind) = ('SELECT docid, content, origin FROM term');
   if ($pattern) {
     if ($self->params->{use_fulltext}) {
+
+      # make sure that Search::Tokenizer is loaded so that SQLite can call
+      # the 'unaccent' tokenizer
+      require Search::Tokenizer if $self->params->{use_unaccent};
+
       $sql .= " WHERE content MATCH ?";
 
       # SQLITE's fulltext engine doesn't like unbalanced parenthesis

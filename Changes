@@ -1,5 +1,8 @@
 Revision history for Lingua-Thesaurus
 
+0.11 03.01.2017
+  - fix failing tests due to undeclared dependencies
+
 0.10 02.01.2017
   - force dependency on v1.54 of DBD::SQLite because of RT#118968
 

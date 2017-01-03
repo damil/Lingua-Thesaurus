@@ -2,9 +2,7 @@
 use strict;
 use warnings FATAL => 'all';
 use Test::More;
-use FindBin;
 use Lingua::Thesaurus;
-use List::MoreUtils qw/firstval/;
 
 plan tests => 14;
 
