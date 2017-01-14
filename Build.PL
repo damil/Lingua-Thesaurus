@@ -25,6 +25,9 @@ my $builder = Module::Build->new(
         'DBD::SQLite'       => 1.54,
         'Search::Tokenizer' => 0,
     },
+    test_requires => {
+        'POSIX' => 0,
+    },
     add_to_cleanup     => [ 'Lingua-Thesaurus-*' ],
     meta_merge => {
       resources => {

@@ -1,5 +1,8 @@
 Revision history for Lingua-Thesaurus
 
+0.13 14.01.2017
+  - reintroduced call to POSIX::_exit() in test 06 (required on most Linuxes)
+
 0.12 07.01.2017
   - call to POSIX::_exit() in test 06 causes failure and is no longer needed
     since method L::T::search_terms() does its own "require Search::Tokenizer".
